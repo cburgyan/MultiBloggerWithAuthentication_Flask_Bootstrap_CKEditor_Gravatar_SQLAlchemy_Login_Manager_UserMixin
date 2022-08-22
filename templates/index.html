@@ -17,6 +17,13 @@
 
   <!-- Main Content -->
   <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p style="color: lightgreen;">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
         {% for post in all_posts %}

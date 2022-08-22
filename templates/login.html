@@ -12,7 +12,11 @@
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="page-heading">
             <h1>Log In</h1>
+            {% if not current_user or not current_user.is_authenticated %}
             <span class="subheading">Welcome Back!</span>
+            {% else %}
+            <p style="color: red;">{{ current_user.name }} is currently logged in. Please log {{ current_user.name }} out before trying to register.</p>
+            {% endif %}
           </div>
         </div>
       </div>

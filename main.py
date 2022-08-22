@@ -9,7 +9,8 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from forms import CreatePostForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, EmailField, PasswordField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -20,6 +21,7 @@ Bootstrap(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
 
 
 # #CONFIGURE TABLES
@@ -35,7 +37,38 @@ class BlogPost(db.Model):
     img_url = db.Column(db.String(250), nullable=False)
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False)
+    is_authenticated = db.Column(db.Boolean, nullable=False)
+    is_anonymous = db.Column(db.Boolean, nullable=False)
+
+    def get_id(self):
+        return str(self.id)
+
+
 db.create_all()
+
+
+class RegisterForm(FlaskForm):
+    name = StringField('Username: ', validators=[DataRequired()])
+    email = EmailField('Email: ', validators=[DataRequired()])
+    password = PasswordField('Password: ', validators=[DataRequired()])
+    submit = SubmitField('Sign Me Up!')
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Email: ', validators=[DataRequired()])
+    password = StringField('Password: ', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
 
 
 @app.route('/')
@@ -44,9 +77,26 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts)
 
 
-@app.route('/register')
+@app.route('/register', methods=['Get', 'POST'])
 def register():
-    return render_template("register.html")
+    form = RegisterForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        new_user = User(
+            name=name,
+            email=form.email.data,
+            password=generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=8),
+            is_active=True,
+            is_authenticated=True,
+            is_anonymous=False
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        print('Registration succeeded.')
+        flash(f"{name}, you have successfully registered!")
+        return redirect(url_for('get_all_posts', name=name))
+    return render_template("register.html", form=form)
 
 
 @app.route('/login')
@@ -55,7 +105,11 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
+    name = current_user.name
+    logout_user()
+    flash(f"{name} has logged out.")
     return redirect(url_for('get_all_posts'))
 
 

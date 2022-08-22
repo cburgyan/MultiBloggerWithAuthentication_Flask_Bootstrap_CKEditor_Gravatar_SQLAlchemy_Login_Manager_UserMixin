@@ -22,9 +22,11 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-       
+       {% if not current_user or not current_user.is_authenticated %}
        {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-
+        {% else %}
+        <p style="color: red;">{{ current_user.name }} is currently logged in. Please log {{ current_user.name }} out before trying to register.</p>
+        {% endif %}
       </div>
     </div>
   </div>
