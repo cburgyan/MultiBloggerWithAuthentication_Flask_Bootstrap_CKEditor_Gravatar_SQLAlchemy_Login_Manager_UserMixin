@@ -37,7 +37,7 @@ class BlogPost(db.Model):
     img_url = db.Column(db.String(250), nullable=False)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -61,8 +61,8 @@ class RegisterForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email: ', validators=[DataRequired()])
-    password = StringField('Password: ', validators=[DataRequired()])
+    email = EmailField('Email: ', validators=[DataRequired()])
+    password = PasswordField('Password: ', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -99,9 +99,27 @@ def register():
     return render_template("register.html", form=form)
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    print('login1')
+    form = LoginForm()
+    print('login2')
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if check_password_hash(user.password, password):
+                login_user(user)
+                db.session.commit()
+                print('Logged in successfully.')
+                flash(f"{user.name}, you have logged in successfully!")
+                return redirect(url_for('get_all_posts'))
+            else:
+                flash(f"Password incorrect. Please try again.")
+        else:
+            flash(f"There is no account in our database with the email, {email}. Please try again.")
+    return render_template("login.html", form=form)
 
 
 @app.route('/logout')

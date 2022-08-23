@@ -35,16 +35,22 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a></a><span style="color: lightgreen; font-size: 1rem;">Hi, {{ current_user.name }}   </span>
+          </li>
+          {% endif %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('get_all_posts') }}">Home</a>
           </li>
-        
+          {% if not current_user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('login') }}">Login</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('register') }}">Register</a>
           </li>
+          {% endif %}
       
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
