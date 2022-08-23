@@ -82,6 +82,11 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         name = form.name.data
+        email = form.email.data
+        old_user = User.query.filter_by(email=email).first()
+        if old_user:
+            flash(f"You've already signed up with that email, log in instead.")
+            return redirect(url_for('login'))
         new_user = User(
             name=name,
             email=form.email.data,
@@ -118,7 +123,7 @@ def login():
             else:
                 flash(f"Password incorrect. Please try again.")
         else:
-            flash(f"There is no account in our database with the email, {email}. Please try again.")
+            flash(f"The email, {email}, does not exist in our database. Please try again.")
     return render_template("login.html", form=form)
 
 

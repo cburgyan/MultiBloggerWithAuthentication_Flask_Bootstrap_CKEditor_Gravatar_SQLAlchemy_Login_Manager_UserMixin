@@ -20,6 +20,14 @@
   </header>
 
   <div class="container">
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% if current_user and current_user.is_authenticated %}
     <p style="color: red;">{{ current_user.name }} is currently logged in. Please log {{ current_user.name }} out before trying to log in.</p>
     {% else %}
