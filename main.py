@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -30,15 +31,22 @@ login_manager = LoginManager(app)
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
     id = db.Column(db.Integer, primary_key=True)
-    author = db.Column(db.String(250), nullable=False)
+    #author = db.Column(db.String(250), nullable=False)
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
+    # Create Foreign Key; in "users.id", the "users" refers to the tablename of User.
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    # Create reference to the User object, the "posts" refers to the posts property in the User class.
+    author = relationship('User', back_populates='posts')
+
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -46,6 +54,10 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, nullable=False)
     is_authenticated = db.Column(db.Boolean, nullable=False)
     is_anonymous = db.Column(db.Boolean, nullable=False)
+
+    # This will act like a list of BlogPost objects attached to each User.
+    # The "author" refers to the author property in the BlogPost class.
+    posts = relationship('BlogPost', back_populates='author')
 
     def get_id(self):
         return str(self.id)
@@ -74,7 +86,11 @@ def load_user(user_id):
 
 @app.route('/')
 def get_all_posts():
+    print('pre-posts')
+    print(BlogPost.query.all())
+    print('mid-posts')
     posts = BlogPost.query.all()
+    print(posts)
     return render_template("index.html", all_posts=posts)
 
 
@@ -165,7 +181,7 @@ def admin_only(func):
     return wrapper_func
 
 
-@app.route("/new-post")
+@app.route("/new-post", methods=['GET', 'POST'])
 @admin_only
 def add_new_post():
     form = CreatePostForm()
