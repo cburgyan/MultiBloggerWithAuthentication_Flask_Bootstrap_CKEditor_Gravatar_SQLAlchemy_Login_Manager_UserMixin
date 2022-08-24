@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm
+from forms import CreatePostForm, CommentForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, EmailField, PasswordField
@@ -38,7 +38,7 @@ class BlogPost(db.Model):
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
-    # Create Foreign Key; in "users.id", the "users" refers to the tablename of User.
+    # Create Foreign Key; in "users.id", the "users" refers to the __tablename__ of User.
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # Create reference to the User object, the "posts" refers to the posts property in the User class.
@@ -59,8 +59,24 @@ class User(UserMixin, db.Model):
     # The "author" refers to the author property in the BlogPost class.
     posts = relationship('BlogPost', back_populates='author')
 
+    # This will act like a list of Comment objects attached to each User.
+    # The "commenter" refers to the commenter property in the Comment class.
+    comments = relationship('Comment', back_populates='commenter')
+
     def get_id(self):
         return str(self.id)
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String, nullable=False)
+
+    # Create Foreign Key; in "users.id", the "users" refers to the __tablename__ of User.
+    commenter_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    # Create reference to the User object, the "comments" refers to the comments property in the User class.
+    commenter = relationship('User', back_populates='comments')
 
 
 db.create_all()
@@ -153,10 +169,21 @@ def logout():
     return redirect(url_for('get_all_posts'))
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def show_post(post_id):
     requested_post = BlogPost.query.get(post_id)
-    return render_template("post.html", post=requested_post)
+    form = CommentForm()
+    if form.validate_on_submit():
+        commenter = current_user
+        text = form.body.data
+        new_comment = Comment(
+            commenter=commenter,
+            text=text
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(url_for('show_post', post_id=post_id))
+    return render_template("post.html", post=requested_post, form=form)
 
 
 @app.route("/about")
