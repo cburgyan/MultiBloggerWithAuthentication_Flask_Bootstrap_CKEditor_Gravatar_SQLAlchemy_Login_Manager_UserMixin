@@ -44,6 +44,10 @@ class BlogPost(db.Model):
     # Create reference to the User object, the "posts" refers to the posts property in the User class.
     author = relationship('User', back_populates='posts')
 
+    # This will act like a list of Comment objects attached to each BlogPost.
+    # The "blog_post" refers to the blog_post property in the Comment class.
+    comments = relationship('Comment', back_populates='blog_post')
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -77,6 +81,14 @@ class Comment(db.Model):
 
     # Create reference to the User object, the "comments" refers to the comments property in the User class.
     commenter = relationship('User', back_populates='comments')
+
+    # Create Foreign Key; in "blog_posts.id", the "blog_posts" refers to the __tablename__ of BlogPost.
+    blog_post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'))
+
+    # Create reference to the User object, the "comments" refers to the comments property in the User class.
+    blog_post = relationship('BlogPost', back_populates='comments')
+
+
 
 
 db.create_all()
@@ -170,19 +182,25 @@ def logout():
 
 
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
+# @login_required
 def show_post(post_id):
     requested_post = BlogPost.query.get(post_id)
     form = CommentForm()
     if form.validate_on_submit():
-        commenter = current_user
-        text = form.body.data
-        new_comment = Comment(
-            commenter=commenter,
-            text=text
-        )
-        db.session.add(new_comment)
-        db.session.commit()
-        return redirect(url_for('show_post', post_id=post_id))
+        if not current_user or not current_user.is_authenticated:
+            flash('You need to log in or register to comment.')
+            return redirect(url_for('login'))
+        else:
+            commenter = current_user
+            text = form.body.data
+            new_comment = Comment(
+                commenter=commenter,
+                text=text,
+                blog_post=requested_post
+            )
+            db.session.add(new_comment)
+            db.session.commit()
+            return redirect(url_for('show_post', post_id=post_id))
     return render_template("post.html", post=requested_post, form=form)
 
 
