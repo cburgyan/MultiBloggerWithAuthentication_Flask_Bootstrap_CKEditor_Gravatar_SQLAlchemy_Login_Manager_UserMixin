@@ -1,4 +1,3 @@
-import sqlalchemy
 from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -28,8 +27,6 @@ gravatar = Gravatar(
     base_url=None
 )
 Bootstrap(app)
-
-
 
 
 # #CONNECT TO DB
@@ -100,8 +97,6 @@ class Comment(db.Model):
 
     # Create reference to the User object, the "comments" refers to the comments property in the User class.
     blog_post = relationship('BlogPost', back_populates='comments')
-
-
 
 
 db.create_all()
@@ -195,7 +190,6 @@ def logout():
 
 
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
-# @login_required
 def show_post(post_id):
     requested_post = BlogPost.query.get(post_id)
     form = CommentForm()
