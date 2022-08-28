@@ -221,20 +221,30 @@ def contact():
     return render_template("contact.html")
 
 
-def admin_only(func):
+def admin_or_post_author_only(func):
     @wraps(func)
     def wrapper_func(*args, **kwargs):
-        if hasattr(current_user, 'id'):
-            if current_user.id == 1:
+        post_id = kwargs.get('post_id')
+        if post_id:
+            post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
+            if hasattr(current_user, 'id') and post_author_id == current_user.id:
                 return func(*args, **kwargs)
-            return abort(403)
+            else:
+                flash('Sorry, you must be author of post for this action.')
+                return redirect(url_for('show_post', post_id=post_id))
         else:
-            return abort(403)
+            return func(*args, **kwargs)
+        # if hasattr(current_user, 'id'):
+        #     if current_user.id == 1:
+        #         return func(*args, **kwargs)
+        #     return abort(403)
+        # else:
+        #     return abort(403)
     return wrapper_func
 
 
 @app.route("/new-post", methods=['GET', 'POST'])
-@admin_only
+@admin_or_post_author_only
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -252,8 +262,8 @@ def add_new_post():
     return render_template("make-post.html", form=form)
 
 
-@app.route("/edit-post/<int:post_id>")
-@admin_only
+@app.route("/edit-post/<int:post_id>", methods=['POST', 'GET'])
+@admin_or_post_author_only
 def edit_post(post_id):
     post = BlogPost.query.get(post_id)
     edit_form = CreatePostForm(
@@ -267,7 +277,7 @@ def edit_post(post_id):
         post.title = edit_form.title.data
         post.subtitle = edit_form.subtitle.data
         post.img_url = edit_form.img_url.data
-        post.author = edit_form.author.data
+        post.author = post.author
         post.body = edit_form.body.data
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
@@ -276,7 +286,7 @@ def edit_post(post_id):
 
 
 @app.route("/delete/<int:post_id>")
-@admin_only
+@admin_or_post_author_only
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
     db.session.delete(post_to_delete)
