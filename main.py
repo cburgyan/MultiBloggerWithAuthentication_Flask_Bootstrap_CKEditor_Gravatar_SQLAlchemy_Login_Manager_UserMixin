@@ -227,19 +227,13 @@ def admin_or_post_author_only(func):
         post_id = kwargs.get('post_id')
         if post_id:
             post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and post_author_id == current_user.id:
+            if hasattr(current_user, 'id') and post_author_id == current_user.id or current_user.id == 1:
                 return func(*args, **kwargs)
             else:
                 flash('Sorry, you must be author of post for this action.')
                 return redirect(url_for('show_post', post_id=post_id))
         else:
             return func(*args, **kwargs)
-        # if hasattr(current_user, 'id'):
-        #     if current_user.id == 1:
-        #         return func(*args, **kwargs)
-        #     return abort(403)
-        # else:
-        #     return abort(403)
     return wrapper_func
 
 
