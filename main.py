@@ -48,7 +48,7 @@ class BlogPost(db.Model):
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
-    # Create Foreign Key; in "users.id", the "users" refers to the __tablename__ of User.
+    # Create Foreign Key. In "users.id", the "users" refers to the __tablename__ of User.
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # Create reference to the User object, the "posts" refers to the posts property in the User class.
@@ -86,13 +86,13 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String, nullable=False)
 
-    # Create Foreign Key; in "users.id", the "users" refers to the __tablename__ of User.
+    # Create Foreign Key. In "users.id", the "users" refers to the __tablename__ of User.
     commenter_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # Create reference to the User object, the "comments" refers to the comments property in the User class.
     commenter = relationship('User', back_populates='comments')
 
-    # Create Foreign Key; in "blog_posts.id", the "blog_posts" refers to the __tablename__ of BlogPost.
+    # Create Foreign Key. In "blog_posts.id", the "blog_posts" refers to the __tablename__ of BlogPost.
     blog_post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'))
 
     # Create reference to the User object, the "comments" refers to the comments property in the User class.
@@ -122,11 +122,7 @@ def load_user(user_id):
 
 @app.route('/')
 def get_all_posts():
-    print('pre-posts')
-    print(BlogPost.query.all())
-    print('mid-posts')
     posts = BlogPost.query.all()
-    print(posts)
     return render_template("index.html", all_posts=posts)
 
 
@@ -142,7 +138,7 @@ def register():
             return redirect(url_for('login'))
         new_user = User(
             name=name,
-            email=form.email.data,
+            email=email,
             password=generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=8),
             is_active=True,
             is_authenticated=True,
@@ -153,15 +149,13 @@ def register():
         login_user(new_user)
         print('Registration succeeded.')
         flash(f"{name}, you have successfully registered!")
-        return redirect(url_for('get_all_posts', name=name))
+        return redirect(url_for('get_all_posts'))
     return render_template("register.html", form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    print('login1')
     form = LoginForm()
-    print('login2')
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
@@ -170,7 +164,6 @@ def login():
             if check_password_hash(user.password, password):
                 login_user(user)
                 db.session.commit()
-                print('Logged in successfully.')
                 flash(f"{user.name}, you have logged in successfully!")
                 return redirect(url_for('get_all_posts'))
             else:
