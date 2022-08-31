@@ -290,25 +290,30 @@ def author_page(author_name):
 def admin_or_author_only(func):
     @wraps(func)
     def wrapper_func(*args, **kwargs):
-        author = kwargs.get('author')
-
-        if author:
+        author_id = int(kwargs.get('author_id'))
+        if author_id:
             # post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and (current_user.id == author.id or current_user.id == 1):
+            if hasattr(current_user, 'id') and (current_user.id == author_id or current_user.id == 1):
                 return func(*args, **kwargs)
+            else:
+                return abort(403)
         else:
-            flash('Sorry, you must be author of post for this action.')
-            return redirect(url_for('get_all_posts', post_id=post_id))
+            print('No, such author is in the database.')
+            return abort(403)
     return wrapper_func
 
 
-# @app.route('/author/<author_name>')
-# @admin_or_comments_author_only
-# def comments_page(author_name):
-#     user = request.args.get('user')
-#
-#     comments = user.comments
-#     return render_template('commments.html', author=user, comments=comments)
+@app.route('/author/comments/<author_name>/<author_id>')
+@admin_or_author_only
+def author_comments_page(author_name, author_id):
+    # author_id = request.args.get('author_id')
+    user = User.query.get(author_id)
+    comments = user.comments
+    if comments:
+        return render_template('comments.html', author=user, authors_comments=comments)
+    flash('The server did not find any comments.')
+    posts = user.posts
+    return render_template('author.html', author=user, authors_posts=posts)
 
 
 if __name__ == "__main__":

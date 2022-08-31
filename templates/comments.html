@@ -26,30 +26,20 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+
+    <h2>Comments</h2>
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        {% for post in authors_posts %}
+        {% for comment in authors_comments %}
         <div class="post-preview">
-          <a href="{{ url_for('show_post', post_id=post.id) }}">
-            <h2 class="post-title">
-              {{post.title}}
-            </h2>
+          <a href="{{ url_for('show_post', post_id=comment.blog_post_id) }}">
             <h3 class="post-subtitle">
-              {{post.subtitle}}
+              {{comment.text|safe}}
             </h3>
           </a>
-          <p class="post-meta">Posted by
-            <a href="{{ url_for('author_page', author_name=post.author.name, author_id=post.author.id) }}">{{post.author.name}}</a>
-            on {{post.date}}
-            {% if current_user.id == post.author.id or current_user.id == 1 %}
-            <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
-            {% endif %}
-          </p>
         </div>
         <hr>
         {% endfor %}
-
-        <!-- New Post -->
         {% if current_user.id == author.id %}
         <div class="clearfix">
           <a class="btn btn-primary float-right" href="{{url_for('add_new_post')}}">Create New Post</a>
@@ -59,10 +49,5 @@
     </div>
   </div>
   <hr>
-
-  {% if current_user.id == author.id or current_user.id == 1 %}
-  <a href="{{ url_for('author_comments_page', author_name=author.name, author_id=author.id) }}">Past Comments</a>
-  <hr>
-  {% endif %}
 
 {% include "footer.html" %}
