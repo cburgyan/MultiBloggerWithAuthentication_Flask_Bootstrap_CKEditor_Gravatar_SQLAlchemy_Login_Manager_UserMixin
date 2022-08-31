@@ -60,7 +60,12 @@
 
           {% if current_user.is_authenticated %}
           <li class="nav-item">
-            <a href="{{ url_for('author_page', author_name=current_user.name, author_id=current_user.id) }}"><span style="color: lightgreen; font-size: 1rem;">Hi, {{ current_user.name }}   </span></a>
+            <a style='padding-left: .3rem;' href="{{ url_for('author_page', author_name=current_user.name, author_id=current_user.id) }}">
+
+            <div class="commenterImage" style="margin-right: 0px;">
+              <img src="{{ current_user.email | gravatar }}" >
+            </div>
+              <span style="color: lightgreen; font-size: 1rem;">Hi, {{ current_user.name }}   </span></a>
           </li>
           {% endif %}
         </ul>
