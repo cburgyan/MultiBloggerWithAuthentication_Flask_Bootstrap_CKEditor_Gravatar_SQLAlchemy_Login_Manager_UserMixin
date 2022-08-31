@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
@@ -220,18 +220,18 @@ def admin_or_post_author_only(func):
         post_id = kwargs.get('post_id')
         if post_id:
             post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and post_author_id == current_user.id or current_user.id == 1:
+            if hasattr(current_user, 'id') and (post_author_id == current_user.id or current_user.id == 1):
                 return func(*args, **kwargs)
             else:
-                flash('Sorry, you must be author of post for this action.')
-                return redirect(url_for('show_post', post_id=post_id))
+                return abort(403)
         else:
-            return func(*args, **kwargs)
+            print('Something went wrong. This line should not be reached.')
+            return abort(500)
     return wrapper_func
 
 
 @app.route("/new-post", methods=['GET', 'POST'])
-@admin_or_post_author_only
+@login_required
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -277,6 +277,38 @@ def delete_post(post_id):
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
+
+
+@app.route('/author/<author_name>')
+def author_page(author_name):
+    author_id = request.args.get('author_id')
+    user = User.query.get(author_id)
+    posts = user.posts
+    return render_template('author.html', author=user, authors_posts=posts)
+
+
+def admin_or_author_only(func):
+    @wraps(func)
+    def wrapper_func(*args, **kwargs):
+        author = kwargs.get('author')
+
+        if author:
+            # post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
+            if hasattr(current_user, 'id') and (current_user.id == author.id or current_user.id == 1):
+                return func(*args, **kwargs)
+        else:
+            flash('Sorry, you must be author of post for this action.')
+            return redirect(url_for('get_all_posts', post_id=post_id))
+    return wrapper_func
+
+
+# @app.route('/author/<author_name>')
+# @admin_or_comments_author_only
+# def comments_page(author_name):
+#     user = request.args.get('user')
+#
+#     comments = user.comments
+#     return render_template('commments.html', author=user, comments=comments)
 
 
 if __name__ == "__main__":

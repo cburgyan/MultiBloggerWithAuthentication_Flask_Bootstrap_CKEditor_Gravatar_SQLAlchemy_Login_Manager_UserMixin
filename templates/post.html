@@ -13,7 +13,7 @@
             <h1>{{post.title}}</h1>
             <h2 class="subheading">{{post.subtitle}}</h2>
             <span class="meta">Posted by
-              <a href="#">{{post.author.name}}</a>
+              <a href="{{ url_for('author_page', author_name=post.author.name, author_id=post.author.id) }}">{{post.author.name}}</a>
               on {{post.date}}</span>
           </div>
         </div>

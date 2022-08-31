@@ -7,13 +7,15 @@
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="site-heading">
-            <h1 style="font-size: 3.7rem">Afternoon Cups</h1>
+            <h1>{{ author.name }}'s Blog</h1>
             <span class="subheading">A collection of random musings.</span>
           </div>
         </div>
       </div>
     </div>
   </header>
+
+
 
   <!-- Main Content -->
   <div class="container">
@@ -26,7 +28,7 @@
     {% endwith %}
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        {% for post in all_posts %}
+        {% for post in authors_posts %}
         <div class="post-preview">
           <a href="{{ url_for('show_post', post_id=post.id) }}">
             <h2 class="post-title">
@@ -39,7 +41,7 @@
           <p class="post-meta">Posted by
             <a href="{{ url_for('author_page', author_name=post.author.name, author_id=post.author.id) }}">{{post.author.name}}</a>
             on {{post.date}}
-            {% if current_user.id == 1 %}
+            {% if current_user.id == post.author.id or current_user.id == 1 %}
             <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
             {% endif %}
           </p>
@@ -47,14 +49,20 @@
         <hr>
         {% endfor %}
 
-
         <!-- New Post -->
+        {% if current_user.id == author.id %}
         <div class="clearfix">
           <a class="btn btn-primary float-right" href="{{url_for('add_new_post')}}">Create New Post</a>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>
   <hr>
+
+  {% if current_user.id == author.id or current_user.id == 1 %}
+  <a href="{{ url_for('author_comments_page', author_id=author.id) }}">Past Comments</a>
+  <hr>
+  {% endif %}
 
 {% include "footer.html" %}
