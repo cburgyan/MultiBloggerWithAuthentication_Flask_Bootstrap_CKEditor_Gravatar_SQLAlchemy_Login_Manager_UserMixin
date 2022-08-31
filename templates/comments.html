@@ -32,10 +32,20 @@
       <div class="col-lg-8 col-md-10 mx-auto">
         {% for comment in authors_comments %}
         <div class="post-preview">
+          <div>
           <a href="{{ url_for('show_post', post_id=comment.blog_post_id) }}">
-            <h3 class="post-subtitle">
-              {{comment.text|safe}}
-            </h3>
+            <h4>Blog Post:</h4>
+            <h5>
+              {{comment.blog_post.title}}
+            </h5>
+            <h6 style="padding-bottom: 1rem;">
+              {{comment.blog_post.subtitle|safe}}
+            </h6>
+            <h4>Comment:</h4>
+            <h5 style="padding-bottom: 1rem;">
+              {{comment.text.replace('<p>', '').replace('</p>','')|safe}}
+            </h5>
+            </div>
           </a>
         </div>
         <hr>

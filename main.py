@@ -306,7 +306,6 @@ def admin_or_author_only(func):
 @app.route('/author/comments/<author_name>/<author_id>')
 @admin_or_author_only
 def author_comments_page(author_name, author_id):
-    # author_id = request.args.get('author_id')
     user = User.query.get(author_id)
     comments = user.comments
     if comments:
