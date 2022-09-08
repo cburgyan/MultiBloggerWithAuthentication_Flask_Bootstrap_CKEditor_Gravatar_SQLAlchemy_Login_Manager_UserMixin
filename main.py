@@ -10,7 +10,6 @@ from forms import CreatePostForm, CommentForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
-from wtforms.fields import EmailField
 from wtforms.validators import DataRequired
 from functools import wraps
 
@@ -105,13 +104,13 @@ db.create_all()
 
 class RegisterForm(FlaskForm):
     name = StringField('Username: ', validators=[DataRequired()])
-    email = EmailField('Email: ', validators=[DataRequired()])
+    email = StringField('Email: ', validators=[DataRequired()])
     password = PasswordField('Password: ', validators=[DataRequired()])
     submit = SubmitField('Sign Me Up!')
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Email: ', validators=[DataRequired()])
+    email = StringField('Email: ', validators=[DataRequired()])
     password = PasswordField('Password: ', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
