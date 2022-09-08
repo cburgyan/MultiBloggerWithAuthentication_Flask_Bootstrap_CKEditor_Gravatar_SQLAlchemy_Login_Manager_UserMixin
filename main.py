@@ -9,7 +9,8 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from forms import CreatePostForm, CommentForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, EmailField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField
+from wtforms.fields import EmailField
 from wtforms.validators import DataRequired
 from functools import wraps
 
