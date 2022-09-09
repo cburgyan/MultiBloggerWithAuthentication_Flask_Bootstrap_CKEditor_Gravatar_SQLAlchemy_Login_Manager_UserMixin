@@ -1,7 +1,7 @@
 {% include "header.html" %}
 
   <!-- Page Header -->
-  <header class="masthead" style="background-image: url('https://images.unsplash.com/photo-1470092306007-055b6797ca72?ixlib=rb-1.2.1&auto=format&fit=crop&w=668&q=80')">
+  <header class="masthead" style="margin-bottom: 0px; background-image: url('https://images.unsplash.com/photo-1502397979823-35c36d0655a5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHdpbmRpbmclMjBwYXRofGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=900&q=60')">
     <div class="overlay"></div>
     <div class="container">
       <div class="row">
@@ -9,16 +9,20 @@
           <div class="site-heading">
             <h1>{{ author.name }}'s Blog</h1>
             <span class="subheading">A collection of random musings.</span>
+
+
           </div>
         </div>
       </div>
     </div>
   </header>
 
+<div style=" margin-bottom: 50px;">
+  <a href='https://images.unsplash.com/photo-1502397979823-35c36d0655a5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHdpbmRpbmclMjBwYXRofGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=900&q=60' style="font-size: .7rem; font-weight: lighter;">photo by Michael Shannon from unsplash.com</a>
+</div>
 
-
-  <!-- Main Content -->
-  <div class="container">
+<!-- Main Content -->
+<div class="container">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
@@ -57,12 +61,11 @@
         {% endif %}
       </div>
     </div>
-  </div>
   <hr>
-
   {% if current_user.id == author.id or current_user.id == 1 %}
   <a href="{{ url_for('author_comments_page', author_name=author.name, author_id=author.id) }}">Past Comments</a>
   <hr>
   {% endif %}
+  </div>
 
 {% include "footer.html" %}

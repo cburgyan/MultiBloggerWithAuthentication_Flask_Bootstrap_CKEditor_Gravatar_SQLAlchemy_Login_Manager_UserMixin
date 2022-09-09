@@ -132,7 +132,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         name = form.name.data
-        email = form.email.data
+        email = str(form.email.data).lower()
         old_user = User.query.filter_by(email=email).first()
         if old_user:
             flash(f"You've already signed up with that email, log in instead.")
@@ -158,7 +158,7 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
+        email = str(form.email.data).lower()
         password = form.password.data
         user = User.query.filter_by(email=email).first()
         if user:
