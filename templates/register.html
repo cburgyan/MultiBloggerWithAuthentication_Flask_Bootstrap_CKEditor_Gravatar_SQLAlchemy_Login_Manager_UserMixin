@@ -23,6 +23,13 @@
   <a href='https://unsplash.com/@yoyoqua' style="font-size: 1rem; font-weight: lighter;">photo by Ioana Cristiana from unsplash.com</a>
 </div>
   <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p style="color: lightgreen;">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
        {% if not current_user or not current_user.is_authenticated %}

@@ -17,3 +17,12 @@ class CreatePostForm(FlaskForm):
 class CommentForm(FlaskForm):
     body = CKEditorField("Comment", validators=[DataRequired()])
     submit = SubmitField('Submit Comment')
+
+
+class ContactForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    phone = StringField('Phone Number', validators=[])
+    message = CKEditorField("Message", validators=[DataRequired()])
+    submit = SubmitField('Submit Message')
+

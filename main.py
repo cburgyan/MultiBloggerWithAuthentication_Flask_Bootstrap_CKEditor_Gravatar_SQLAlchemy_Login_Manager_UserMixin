@@ -6,16 +6,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm, CommentForm
+from forms import CreatePostForm, CommentForm, ContactForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired
 from functools import wraps
+import smtplib
 import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+MY_EMAIL = os.environ.get('MY_EMAIL')
+MY_PASSWORD = os.environ.get('MY_PASSWORD')
 ckeditor = CKEditor(app)
 gravatar = Gravatar(
     app,
@@ -116,6 +119,18 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+def send_message(email, phone, message, name='None'):
+    try:
+        with smtplib.SMTP("smtp.mail.yahoo.com", port=587) as smtp_connection:
+            smtp_connection.starttls()
+            smtp_connection.login(user=MY_EMAIL, password=MY_PASSWORD)
+            smtp_connection.sendmail(from_addr=MY_EMAIL,
+                                     to_addrs=MY_EMAIL,
+                                     msg=f"Subject: From AFTERNOON-CUPS\n\nName:\n{name}\nPhone:\n{phone}\nEmail:\n{email}\nMessage:\n{message}")
+    except Exception as error_message:
+        print(f"Something Went Wrong In Sending The Email:\n{error_message}")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.filter_by(id=user_id).first()
@@ -210,9 +225,20 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    return render_template("contact.html")
+    form = ContactForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        name = form.name.data
+        phone = form.phone.data
+        message = form.message.data
+        send_message(email, phone, message, name)
+
+        flash('Message sent!')
+        return redirect(url_for('contact'))
+
+    return render_template("contact.html", form=form)
 
 
 def admin_or_post_author_only(func):
@@ -317,4 +343,4 @@ def author_comments_page(author_name, author_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)#host='0.0.0.0', port=5000)
