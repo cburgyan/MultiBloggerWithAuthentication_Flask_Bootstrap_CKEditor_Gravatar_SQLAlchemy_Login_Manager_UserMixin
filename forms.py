@@ -22,13 +22,13 @@ class CommentForm(FlaskForm):
 class ContactForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired()])
-    phone = StringField('Phone Number', validators=[])
+    phone = StringField('Phone Number (not required)', validators=[])
     message = CKEditorField("Message", validators=[DataRequired()])
     submit = SubmitField('Submit Message')
 
 
 class ContactPrePopulatedForm(FlaskForm):
-    phone = StringField('Phone Number', validators=[])
+    phone = StringField('Phone Number (not required)', validators=[])
     message = CKEditorField("Message", validators=[DataRequired()])
     submit = SubmitField('Submit Message')
 
