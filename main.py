@@ -249,6 +249,8 @@ def contact():
     return render_template("contact.html", form=form)
 
 
+# Allows only the admin or the poster of a post to access the particular route that the
+# function decorator decorates
 def admin_or_post_author_only(func):
     @wraps(func)
     def wrapper_func(*args, **kwargs):
