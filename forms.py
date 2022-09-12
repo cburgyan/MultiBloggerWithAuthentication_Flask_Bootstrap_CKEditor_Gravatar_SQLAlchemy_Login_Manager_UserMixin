@@ -26,3 +26,9 @@ class ContactForm(FlaskForm):
     message = CKEditorField("Message", validators=[DataRequired()])
     submit = SubmitField('Submit Message')
 
+
+class ContactPrePopulatedForm(FlaskForm):
+    phone = StringField('Phone Number', validators=[])
+    message = CKEditorField("Message", validators=[DataRequired()])
+    submit = SubmitField('Submit Message')
+

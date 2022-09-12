@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm, CommentForm, ContactForm
+from forms import CreatePostForm, CommentForm, ContactForm, ContactPrePopulatedForm
 from flask_gravatar import Gravatar
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
@@ -227,10 +227,18 @@ def about():
 
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    form = ContactForm()
+    if current_user.is_authenticated:
+        form = ContactPrePopulatedForm()
+    else:
+        form = ContactForm()
+
     if form.validate_on_submit():
-        email = form.email.data
-        name = form.name.data
+        if current_user.is_authenticated:
+            name = current_user.name
+            email = current_user.email
+        else:
+            email = form.email.data
+            name = form.name.data
         phone = form.phone.data
         message = form.message.data
         send_message(email, phone, message, name)

@@ -35,6 +35,18 @@
     {% endwith %}
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
+        {% if current_user.is_authenticated %}
+          <label>Name</label>
+          <br>
+          <label>{{current_user.name}}</label>
+          <br>
+          <br>
+          <label>Email</label>
+          <br>
+          <label>{{current_user.email}}</label>
+          <br>
+          <br>
+        {% endif %}
        {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
       </div>
     </div>
