@@ -270,7 +270,7 @@ def admin_or_post_author_only(func):
 @app.route("/new-post", methods=['GET', 'POST'])
 @login_required
 def add_new_post():
-    form = CreatePostForm()
+    form = CreatePostForm(body="Photo by (don't forget to credit your photo/image (eg 'Photo by John Smith') here)")
     if form.validate_on_submit():
         new_post = BlogPost(
             title=form.title.data,
