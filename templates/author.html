@@ -45,7 +45,7 @@
           <p class="post-meta">Posted by
             <a href="{{ url_for('author_page', author_name=post.author.name, author_id=post.author.id) }}">{{post.author.name}}</a>
             on {{post.date}}
-            {% if current_user.id == post.author.id or current_user.id == 1 %}
+            {% if current_user.id == post.author.id or admin_pass %}
             <a href="{{url_for('delete_post', post_id=post.id) }}">✘</a>
             {% endif %}
           </p>
@@ -62,7 +62,7 @@
       </div>
     </div>
   <hr>
-  {% if current_user.id == author.id or current_user.id == 1 %}
+  {% if current_user.id == author.id or admin_pass %}
   <a href="{{ url_for('author_comments_page', author_name=author.name, author_id=author.id) }}">Past Comments</a>
   <hr>
   {% endif %}

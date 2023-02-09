@@ -217,7 +217,8 @@ def show_post(post_id):
             db.session.add(new_comment)
             db.session.commit()
             return redirect(url_for('show_post', post_id=post_id))
-    return render_template("post.html", post=requested_post, form=form)
+    return render_template("post.html", post=requested_post, form=form, admin_pass = current_user.id == 1 or check_password_hash(
+        current_user.password, os.environ.get('ADMIN_PASSWORD')))
 
 
 @app.route("/about")
@@ -257,7 +258,10 @@ def admin_or_post_author_only(func):
         post_id = kwargs.get('post_id')
         if post_id:
             post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and (post_author_id == current_user.id or current_user.id == 1):
+            if hasattr(current_user, 'id') and (post_author_id == current_user.id or
+                                                current_user.id == 1 or
+                                                check_password_hash(current_user.password,
+                                                                    os.environ.get('ADMIN_PASSWORD'))):
                 return func(*args, **kwargs)
             else:
                 return abort(403)
@@ -321,7 +325,8 @@ def author_page(author_name):
     author_id = request.args.get('author_id')
     user = User.query.get(author_id)
     posts = user.posts
-    return render_template('author.html', author=user, authors_posts=posts)
+    return render_template('author.html', author=user, authors_posts=posts, admin_pass = current_user.id == 1 or check_password_hash(
+        current_user.password, os.environ.get('ADMIN_PASSWORD')))
 
 
 def admin_or_author_only(func):
@@ -330,7 +335,9 @@ def admin_or_author_only(func):
         author_id = int(kwargs.get('author_id'))
         if author_id:
             # post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and (current_user.id == author_id or current_user.id == 1):
+            if hasattr(current_user, 'id') and (current_user.id == author_id or current_user.id == 1
+                                                or check_password_hash(current_user.password,
+                                                                       os.environ.get('ADMIN_PASSWORD'))):
                 return func(*args, **kwargs)
             else:
                 return abort(403)
