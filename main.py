@@ -257,7 +257,10 @@ def admin_or_post_author_only(func):
         post_id = kwargs.get('post_id')
         if post_id:
             post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and (post_author_id == current_user.id or current_user.id == 1):
+            if hasattr(current_user, 'id') and (post_author_id == current_user.id or
+                                                current_user.id == 1 or
+                                                check_password_hash(current_user.password,
+                                                                    os.environ.get('ADMIN_PASSWORD'))):
                 return func(*args, **kwargs)
             else:
                 return abort(403)
