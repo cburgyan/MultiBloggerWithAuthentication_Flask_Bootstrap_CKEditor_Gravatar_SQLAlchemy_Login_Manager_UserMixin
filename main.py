@@ -217,8 +217,12 @@ def show_post(post_id):
             db.session.add(new_comment)
             db.session.commit()
             return redirect(url_for('show_post', post_id=post_id))
-    return render_template("post.html", post=requested_post, form=form, admin_pass = current_user.id == 1 or check_password_hash(
-        current_user.password, os.environ.get('ADMIN_PASSWORD')))
+
+    admin_pass = 0
+    if current_user.is_authenticated:
+        admin_pass = current_user.id == 1 or check_password_hash(current_user.password,
+                                                                 os.environ.get('ADMIN_PASSWORD'))
+    return render_template("post.html", post=requested_post, form=form, admin_pass=admin_pass)
 
 
 @app.route("/about")
@@ -325,8 +329,12 @@ def author_page(author_name):
     author_id = request.args.get('author_id')
     user = User.query.get(author_id)
     posts = user.posts
-    return render_template('author.html', author=user, authors_posts=posts, admin_pass = current_user.id == 1 or check_password_hash(
-        current_user.password, os.environ.get('ADMIN_PASSWORD')))
+
+    admin_pass = 0
+    if current_user.is_authenticated:
+        admin_pass = current_user.id == 1 or check_password_hash(current_user.password,
+                                                                 os.environ.get('ADMIN_PASSWORD'))
+    return render_template('author.html', author=user, authors_posts=posts, admin_pass = admin_pass)
 
 
 def admin_or_author_only(func):
