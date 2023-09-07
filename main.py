@@ -19,6 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 MY_EMAIL = os.environ.get('MY_EMAIL')
 MY_PASSWORD = os.environ.get('MY_PASSWORD')
+ADMIN_ID = os.environ.get('ADMIN_ID')
 ckeditor = CKEditor(app)
 gravatar = Gravatar(
     app,
@@ -220,7 +221,7 @@ def show_post(post_id):
 
     admin_pass = 0
     if current_user.is_authenticated:
-        admin_pass = current_user.id == 1 or check_password_hash(current_user.password,
+        admin_pass = current_user.id == ADMIN_ID or check_password_hash(current_user.password,
                                                                  os.environ.get('ADMIN_PASSWORD'))
     return render_template("post.html", post=requested_post, form=form, admin_pass=admin_pass)
 
@@ -263,7 +264,7 @@ def admin_or_post_author_only(func):
         if post_id:
             post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
             if hasattr(current_user, 'id') and (post_author_id == current_user.id or
-                                                current_user.id == 1 or
+                                                current_user.id == ADMIN_ID or
                                                 check_password_hash(current_user.password,
                                                                     os.environ.get('ADMIN_PASSWORD'))):
                 return func(*args, **kwargs)
@@ -332,7 +333,7 @@ def author_page(author_name):
 
     admin_pass = 0
     if current_user.is_authenticated:
-        admin_pass = current_user.id == 1 or check_password_hash(current_user.password,
+        admin_pass = current_user.id == ADMIN_ID or check_password_hash(current_user.password,
                                                                  os.environ.get('ADMIN_PASSWORD'))
     return render_template('author.html', author=user, authors_posts=posts, admin_pass = admin_pass)
 
@@ -343,7 +344,7 @@ def admin_or_author_only(func):
         author_id = int(kwargs.get('author_id'))
         if author_id:
             # post_author_id = BlogPost.query.filter_by(id=post_id).first().author.id
-            if hasattr(current_user, 'id') and (current_user.id == author_id or current_user.id == 1
+            if hasattr(current_user, 'id') and (current_user.id == author_id or current_user.id == ADMIN_ID
                                                 or check_password_hash(current_user.password,
                                                                        os.environ.get('ADMIN_PASSWORD'))):
                 return func(*args, **kwargs)
