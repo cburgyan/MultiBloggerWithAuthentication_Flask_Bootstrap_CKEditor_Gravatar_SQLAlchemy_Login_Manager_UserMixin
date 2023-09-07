@@ -165,7 +165,7 @@ def register():
         db.session.commit()
         login_user(new_user)
         print('Registration succeeded.')
-        flash(f"{name}, you have successfully registered!")
+        flash(f"{name}, you have successfully registered! {current_user.id}")
         return redirect(url_for('get_all_posts'))
     return render_template("register.html", form=form)
 
