@@ -485,6 +485,6 @@ footer .copyright {
 }
 
 
-.navbar-brand, .nav-link{
+a.navbar-brand, a.nav-link{
   color: #333 important!;
 }
